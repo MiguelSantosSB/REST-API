@@ -21,7 +21,6 @@ app = Flask(__name__)
 #     }
 # ]
 
-
 # Vendo o sistema de lojas #01
 @app.get("/lojas")
 def get_loja():
@@ -78,8 +77,41 @@ def get_store(loja_id):
 
 # procura se uma loja está armazenada e se sim irá retorma seus itens #04
 @app.get("/itens/<string:item_id>")
-def get_item_in_store(item_id):
+def get_item(item_id):
     try:
         return itens[item_id]
     except KeyError:
         abort(404,menssage= "Item não encontrado.")
+
+@app.put("/itens/<string:item_id>")
+def apdate_item(item_id):
+    item_data = request.get_json()
+    if(
+        "preco" not in item_data 
+        or "name" not in item_data
+    ):
+        abort(400, mensage="Bad request. Ensure 'preco', and 'name' are included in the JSON payload.")
+    
+    try:
+        item = itens[item_id]
+        item |= item_data
+
+        return item
+    except KeyError:
+        abort(404, message= "Item não encontrado")
+
+@app.delete("/itens/<string:item_id>")
+def delete_item(item_id):
+    try:
+        del itens[item_id]
+        return {"mensage": "Item DELETADO com sucesso."}
+    except KeyError:
+        abort(404,menssage= "Item não encontrado.")
+
+@app.delete("/lojas/<string:loja_id>")
+def delete_store(loja_id):
+    try:
+        del lojas[loja_id]
+        return {"mensage": "Loja DELETADO com sucesso."}
+    except KeyError:
+        abort(404,menssage= "Loja não encontrado.")

@@ -1,7 +1,7 @@
 import uuid
 from flask import request
 from flask.views import MethodView
-from flask_smorest import abort, Blueprint
+from flask_smorest import Blueprint,abort
 from db import lojas
 
 blp = Blueprint("lojas", __name__, decription="Operações da loja")

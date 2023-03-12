@@ -1,14 +1,14 @@
 import uuid
 from flask import request
 from flask.views import MethodView
-from flask_smorest import abort, Blueprint
+from flask_smorest import Blueprint, abort
 from db import itens
 
-blp = Blueprint("itens", __name__, decription="Operações dos Itens")
+blp = Blueprint("Itens", __name__, decription="Operações dos Itens")
 
 
 @blp.route("/itens/<string:item_id>")
-class item(MethodView):
+class Item(MethodView):
 # procura item especifico
     def get(self, item_id):
         try:

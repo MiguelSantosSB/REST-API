@@ -4,11 +4,14 @@ from flask.views import MethodView
 from flask_smorest import Blueprint,abort
 from db import lojas
 
+from schemas import LojasSchema
+
 blp = Blueprint("lojas", __name__, decription="Operações da loja")
 
 
 @blp.route("/lojas/<string:loja_id>")
 class Loja(MethodView):
+    @blp.response(200, LojasSchema)
     def get(self, loja_id):
         try:
             return lojas[loja_id]
@@ -24,20 +27,20 @@ class Loja(MethodView):
 
 @blp.route("/lojas")
 class StoreList(MethodView):
+    @blp.response(200, LojasSchema(many=True))
     def get(self):
-        return {"lojas": list(lojas.values())}
+        return lojas.values()
     
+# Linha de código que fará a validação dos dados
+@blp.arguments(LojasSchema)
 # Adicionando uma nova loja ao sistema #01
-def post(self):
-# sistema que irá impedir a criação de lojas com o mesmo nome
-    loja_data = request.get_json()
-    if "name" not in loja_data:
-        abort(400,mensage="Bad request. Ensure 'name' is included in JSON paylod.")
-    
+@blp.response(200, LojasSchema)
+def post(self, loja_data):
     for loja in lojas.values():
         if loja_data["name"] == loja["name"]:
             abort(400, mensage="Essa loja já existe.")
+
     loja_id = uuid.uuid4().hex 
     loja = {**loja_data, "id": loja_id}
     lojas[loja_id] = loja
-    return loja, 201
+    return loja

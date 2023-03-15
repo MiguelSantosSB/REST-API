@@ -6,7 +6,7 @@ from db import itens
 
 from schemas import ItemSchema, ItemUpdateSchema
 
-blp = Blueprint("Itens", __name__, decription="Operações dos Itens")
+blp = Blueprint("Itens", __name__, description="Operações dos Itens")
 
 
 @blp.route("/itens/<string:item_id>")

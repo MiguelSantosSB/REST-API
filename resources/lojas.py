@@ -6,7 +6,7 @@ from db import lojas
 
 from schemas import LojasSchema
 
-blp = Blueprint("lojas", __name__, decription="Operações da loja")
+blp = Blueprint("lojas", __name__, description="Operações da loja")
 
 
 @blp.route("/lojas/<string:loja_id>")

@@ -2,8 +2,10 @@ import uuid
 from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from db import itens
+from sqlalchemy.exc import SQLAlchemyError
 
+from db import db
+from models import ItemModel
 from schemas import ItemSchema, ItemUpdateSchema
 
 blp = Blueprint("Itens", __name__, description="Operações dos Itens")
@@ -14,48 +16,50 @@ class Item(MethodView):
 # procura item especifico
     @blp.response(200, ItemSchema)
     def get(self, item_id):
-        try:
-            return itens[item_id]
-        except KeyError:
-            abort(404,menssage="Loja não encontrada.")
+        item = ItemModel.query.get_or_404(item_id)
+        return item
+
 # deleta item
     def delete(self, item_id):
-        try:
-            del itens[item_id]
-            return {"mensage": "Item DELETADO com sucesso."}
-        except KeyError:
-            abort(404,menssage= "Item não encontrado.")
-# modifica item
+        item = ItemModel.query.get_or_404(item_id)
+        db.session.delete(item)
+        db.session.commit()
+        return {"message": "Item deletado"} 
+
     @blp.arguments(ItemUpdateSchema)
     @blp.response(200, ItemSchema)
+# modifica item
     def put(self, item_data, item_id):
-        try:
-            item = itens[item_id]
-            
-            item |= item_data
+        item = ItemModel.query.get(item_id)
+        if item:    
+            item.preco = item_data["preco"]
+            item.name = item_data["nome"]
 
-            return item
-        except KeyError:
-            abort(404, message= "Item não encontrado")
+        else:
+            item = ItemModel(id = item_id,**item_data)
+
+        db.session.add(item)
+        db.session.commit()
+
+        return item
 
 @blp.route("/itens")
 class ItemList(MethodView):
 # Mostra todos os itens
     @blp.response(200, ItemSchema(many=True))
     def get(self):
-        return itens.values()
+        return ItemModel.query.all()
 
 # Cria item
     @blp.arguments(ItemSchema)
     @blp.response(201, ItemSchema)
     def post(self, item_data):
-        for item in itens.values():
-            if (item_data["name"] == itens["name"]
-                and item_data["loja_id"] == itens["loja_id"]
-                ):
-                abort(404,menssage= "Loja não encontrada.")
+        item = ItemModel(**item_data)
 
-        item_id = uuid.uuid4().hex 
-        item = {**item_data, "id": item_id}
-        itens[item_id] = item
+        try:
+            db.session.add(item)
+            db.session.commit()
+        except SQLAlchemyError:
+            abort(500, message="Erro ao criar o item")
+            
         return item

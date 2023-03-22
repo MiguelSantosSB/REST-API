@@ -2,45 +2,52 @@ import uuid
 from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint,abort
-from db import lojas
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-from schemas import LojasSchema
+from db import db
+from models import LojaModel
+from schemas import LojaSchema
 
 blp = Blueprint("lojas", __name__, description="Operações da loja")
 
 
 @blp.route("/lojas/<string:loja_id>")
 class Loja(MethodView):
-    @blp.response(200, LojasSchema)
+# Busca loja especifica pelo id
+    @blp.response(200, LojaSchema)
     def get(self, loja_id):
-        try:
-            return lojas[loja_id]
-        except KeyError:
-            abort(404,menssage="Loja não encontrada.")
-
+        loja = LojaModel.get_or_404(loja_id)
+        return loja
+    
+# Deleta loja
     def delete(self, loja_id):
-        try:
-            del lojas[loja_id]
-            return {"mensage": "Loja DELETADO com sucesso."}
-        except KeyError:
-            abort(404,menssage= "Loja não encontrado.")
-
+        loja = LojaModel.query.get_or_404(loja_id)
+        db.session.delete(loja)
+        db.session.commit()
+        return {"message": "Loja deletada"}
+    
+# Todas as lojas
 @blp.route("/lojas")
 class StoreList(MethodView):
-    @blp.response(200, LojasSchema(many=True))
+    @blp.response(200, LojaSchema(many=True))
     def get(self):
-        return lojas.values()
-    
-# Linha de código que fará a validação dos dados
-@blp.arguments(LojasSchema)
-# Adicionando uma nova loja ao sistema #01
-@blp.response(200, LojasSchema)
-def post(self, loja_data):
-    for loja in lojas.values():
-        if loja_data["name"] == loja["name"]:
-            abort(400, mensage="Essa loja já existe.")
+        return LojaModel.query.all()
 
-    loja_id = uuid.uuid4().hex 
-    loja = {**loja_data, "id": loja_id}
-    lojas[loja_id] = loja
-    return loja
+# Cria loja
+# Linha de código que fará a validação dos dados
+@blp.arguments(LojaSchema)
+# Adicionando uma nova loja ao sistema #01
+@blp.response(200, LojaSchema)
+def post(self, loja_data):
+        loja = LojaModel(**loja_data)
+
+        try:
+            db.session.add(loja)
+            db.session.commit()
+        except IntegrityError:
+            abort(400,message="Esse nome já está sendo utilizado por outra loja")
+
+        except SQLAlchemyError:
+            abort(500,message="Erro ao tentar criar a loja")
+            
+        return loja

@@ -16,13 +16,13 @@ class Loja(MethodView):
 # Busca loja especifica pelo id
     @blp.response(200, LojaSchema)
     def get(self, loja_id):
-        loja = LojaModel.get_or_404(loja_id)
-        return loja
+        lojas = LojaModel.get_or_404(loja_id)
+        return lojas
     
 # Deleta loja
     def delete(self, loja_id):
-        loja = LojaModel.query.get_or_404(loja_id)
-        db.session.delete(loja)
+        lojas = LojaModel.query.get_or_404(loja_id)
+        db.session.delete(lojas)
         db.session.commit()
         return {"message": "Loja deletada"}
     
@@ -39,10 +39,10 @@ class StoreList(MethodView):
 # Adicionando uma nova loja ao sistema #01
 @blp.response(200, LojaSchema)
 def post(self, loja_data):
-        loja = LojaModel(**loja_data)
+        lojas = LojaModel(**loja_data)
 
         try:
-            db.session.add(loja)
+            db.session.add(lojas)
             db.session.commit()
         except IntegrityError:
             abort(400,message="Esse nome já está sendo utilizado por outra loja")
@@ -50,4 +50,4 @@ def post(self, loja_data):
         except SQLAlchemyError:
             abort(500,message="Erro ao tentar criar a loja")
             
-        return loja
+        return lojas

@@ -1,2 +1,3 @@
 from models.item import ItemModel
-from models.Loja import LojaModel
+from models.loja import LojaModel
+from models.tag import TagModel

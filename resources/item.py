@@ -1,5 +1,3 @@
-import uuid
-from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
@@ -11,7 +9,7 @@ from schemas import ItemSchema, ItemUpdateSchema
 blp = Blueprint("Itens", __name__, description="Operações dos Itens")
 
 
-@blp.route("/itens/<string:item_id>")
+@blp.route("/item/<string:item_id>")
 class Item(MethodView):
 # procura item especifico
     @blp.response(200, ItemSchema)
@@ -33,7 +31,7 @@ class Item(MethodView):
         item = ItemModel.query.get(item_id)
         if item:    
             item.preco = item_data["preco"]
-            item.name = item_data["nome"]
+            item.name = item_data["name"]
 
         else:
             item = ItemModel(id = item_id,**item_data)
@@ -43,7 +41,7 @@ class Item(MethodView):
 
         return item
 
-@blp.route("/itens")
+@blp.route("/item")
 class ItemList(MethodView):
 # Mostra todos os itens
     @blp.response(200, ItemSchema(many=True))

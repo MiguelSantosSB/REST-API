@@ -1,7 +1,9 @@
 import os
+import secrets 
 
 from flask import Flask
 from flask_smorest import Api
+from flask_jwt_extended import JWTManager
 
 from db import db
 import models
@@ -9,6 +11,7 @@ import models
 from resources.item import blp as ItemBlueprint
 from resources.loja import blp as LojaBlueprint
 from resources.tag import blp as TagBlueprint
+from resources.user import blp as UserBlueprint
 
 
 
@@ -30,6 +33,10 @@ def create_app(db_url=None):
 
     api = Api(app)
 
+    app.config["JWT_SECRET_KEY"] = "92698448279176496712698854447916515982"
+    # secrets.SystemRandom().getrandbits(128)
+    jtw = JWTManager(app)
+
     # @app.before_first_request
     with app.app_context():
         db.create_all()
@@ -37,5 +44,6 @@ def create_app(db_url=None):
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(LojaBlueprint)
     api.register_blueprint(TagBlueprint)
+    api.register_blueprint(UserBlueprint)
 
     return app

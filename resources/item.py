@@ -9,7 +9,7 @@ from schemas import ItemSchema, ItemUpdateSchema
 blp = Blueprint("Itens", __name__, description="Operações dos Itens")
 
 
-@blp.route("/item/<string:item_id>")
+@blp.route("/item/<int:item_id>")
 class Item(MethodView):
 # procura item especifico
     @blp.response(200, ItemSchema)

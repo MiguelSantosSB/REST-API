@@ -11,7 +11,7 @@ from schemas import LojaSchema
 blp = Blueprint("lojas", __name__, description="Operações da loja")
 
 
-@blp.route("/lojas/<string:loja_id>")
+@blp.route("/lojas/<int:loja_id>")
 class Loja(MethodView):
 # Busca loja especifica pelo id
     @blp.response(200, LojaSchema)

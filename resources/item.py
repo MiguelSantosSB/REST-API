@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from flask_jwt_extended import jwt_required 
 from sqlalchemy.exc import SQLAlchemyError
 
 from db import db
@@ -9,15 +10,17 @@ from schemas import ItemSchema, ItemUpdateSchema
 blp = Blueprint("Itens", __name__, description="Operações dos Itens")
 
 
-@blp.route("/item/<int:item_id>")
+@blp.route("/itens/<int:item_id>")
 class Item(MethodView):
 # procura item especifico
+    @jwt_required()
     @blp.response(200, ItemSchema)
     def get(self, item_id):
         item = ItemModel.query.get_or_404(item_id)
         return item
 
 # deleta item
+    @jwt_required()
     def delete(self, item_id):
         item = ItemModel.query.get_or_404(item_id)
         db.session.delete(item)
@@ -41,14 +44,16 @@ class Item(MethodView):
 
         return item
 
-@blp.route("/item")
+@blp.route("/itens")
 class ItemList(MethodView):
 # Mostra todos os itens
+    @jwt_required()
     @blp.response(200, ItemSchema(many=True))
     def get(self):
         return ItemModel.query.all()
 
 # Cria item
+    @jwt_required()
     @blp.arguments(ItemSchema)
     @blp.response(201, ItemSchema)
     def post(self, item_data):

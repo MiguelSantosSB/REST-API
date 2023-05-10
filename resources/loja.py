@@ -35,10 +35,10 @@ class StoreList(MethodView):
 
 # Cria loja
 # Linha de código que fará a validação dos dados
-@blp.arguments(LojaSchema)
+    @blp.arguments(LojaSchema)
 # Adicionando uma nova loja ao sistema #01
-@blp.response(201, LojaSchema)
-def post(self, loja_data):
+    @blp.response(201, LojaSchema)
+    def post(self, loja_data):
         loja = LojaModel(**loja_data)
 
         try:
